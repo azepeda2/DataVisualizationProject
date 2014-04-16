@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <title>
-            Top 100 Universities Based on Grants
+            Top 50 Universities Scatterplot
         </title>
         <style>
             body {
@@ -31,18 +30,15 @@
         </style>
     </head>
     <body>
-        <script src="d3.v3.min.js"></script>
+        <script src="../javascripts/d3.min.js"></script>
 
         <script>
             var margin = {top: 20, right: 20, bottom: 30, left: 80},
             width = 960 - margin.left - margin.right,
                     height = 500 - margin.top - margin.bottom;
 
-            var xvar = "tuition",
-                yvar = "revenue",
-                xname = "Tuition",
-                yname = "Total Revenue";
-
+            var xvar = "tuition";
+            var yvar = "revenue";
             // setting up x 
             var xValue = function(d) {return d[xvar];},
                 xScale = d3.scale.linear().range([0, width]),
@@ -51,9 +47,11 @@
 
             // setting up y
             var yValue = function(d) {return d[yvar];},
-            yScale = d3.scale.linear().range([height, 0]),
-            yMap = function(d) {return yScale(yValue(d));},
-            yAxis = d3.svg.axis().scale(yScale).orient("left");
+                yScale = d3.scale.linear().range([height, 0]),
+                yMap = function(d) {return yScale(yValue(d));},
+                yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+
 
             // adding graph to page
             var svg = d3.select("body").append("svg")
@@ -67,29 +65,15 @@
                     .attr("class", "tooltip")
                     .style("opacity", 0);
 
-            var data;
-
             // load data from file
-            d3.csv("../data/top100Grants.csv", function(error, dataset) {
+            d3.csv("../data/top50.csv", function(error, data) {
 
                 // ensures data from csv is interpreted as int
-                dataset.forEach(function(d) {
+                data.forEach(function(d) {
                     d.tuition = +d.tuition;
                     d.revenue = +d.revenue;
-                    d.control = +d.control;
-                    d.total_enrollment = +d.total_enrollment;
-                    d.inst_grant_avg = +d.inst_grant_avg;
                 });
 
-                data = dataset;
-                updateChart(data);
-            });
-
-            function updateChart(data)
-            {
-                xValue = function(d) {return d[xvar];},
-                yValue = function(d) {return d[yvar];},
-                        
                 // setting up the domain for the x and y-axis
                 xScale.domain([0, d3.max(data, xValue) + 1]);
                 yScale.domain([0, d3.max(data, yValue) + 1]);
@@ -104,7 +88,7 @@
                         .attr("x", width)
                         .attr("y", -6)
                         .style("text-anchor", "end")
-                        .text(xname);
+                        .text("Tuition");
 
                 // creating the y-axis
                 svg.append("g")
@@ -116,7 +100,7 @@
                         .attr("y", 6)
                         .attr("dy", ".71em")
                         .style("text-anchor", "end")
-                        .text(yname);
+                        .text("Total Revenue");
 
                 // plotting the points on to the graph
                 svg.selectAll(".dot")
@@ -132,11 +116,8 @@
                                     .duration(200)
                                     .style("opacity", .9)
                                     .style("color", "black");
-                            tooltip.html(d["instname"] + "<br/> Tuition: $" + d["tuition03_tf"]
-                                    + "<br/> Revenue: $" + d["revenue"]
-                                    + "<br/> Control: " + d["control"]
-                                    + "<br/> Total Enrollment: " + d["total_enrollment"]
-                                    + "<br/> Average Grants " + d["inst_grant_avg"])
+                            tooltip.html(d.instname + "<br/> Tuition: $" + xValue(d)
+                                    + "<br/> Revenue: $" + yValue(d))
                                     .style("left", (d3.event.pageX + 5) + "px")
                                     .style("top", (d3.event.pageY - 28) + "px");
                         })
@@ -145,50 +126,10 @@
                                     .duration(500)
                                     .style("opacity", 0);
                         });
-            };
+            });
         </script>
-        <script>
-            function chooseCategory()
-            {
-                xvar = document.getElementById("xList")
-                        .options[xList.selectedIndex].value;
-                yvar = document.getElementById("yList")
-                        .options[yList.selectedIndex].value;
-                xname = document.getElementById("xList")
-                        .options[xList.selectedIndex].text,
-                        yname = document.getElementById("yList")
-                        .options[yList.selectedIndex].text;
-                svg.selectAll("g")
-                        .data([])
-                        .exit()
-                        .remove();
-                svg.selectAll(".dot")
-                        .data([])
-                        .exit()
-                        .remove();
-                updateChart(data);
+        <a href="AlexSecondPrototype.html"> 
+            <br/> Link to second prototype </a>
 
-            }
-        </script>
-
-        <form>
-            Select value for x-axis:
-            <select id="xList" onchange="chooseCategory()">
-                <option value="tuition">Tuition</option>
-                <option value="revenue">Total Revenue</option>  
-                <option value="control">Control</option>
-                <option value="total_enrollment">Total Enrollment</option>
-                <option value="inst_grant_avg">Average University Grants</option>
-            </select>
-
-            Select value for y-axis:
-            <select id="yList" onchange="chooseCategory()">
-                 <option value="tuition">Tuition</option>
-                <option value="revenue">Total Revenue</option>  
-                <option value="control">Control</option>
-                <option value="total_enrollment">Total Enrollment</option>
-                <option value="inst_grant_avg">Average University Grants</option>
-            </select>
-        </form>
     </body>
 </html>
