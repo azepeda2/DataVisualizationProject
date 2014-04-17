@@ -68,6 +68,7 @@
                     .style("background-color", "white");
 
             var data;
+            var background;
             var choice = 0;
             var format = d3.format('$,');
             var comma = d3.format(',');
@@ -204,6 +205,13 @@
                                     + "<br/> Total Employees: " + comma(d["all_employees"]))
                                     .style("left", (d3.event.pageX + 15) + "px")
                                     .style("top", (d3.event.pageY - 28) + "px");
+
+                            background = svg.append("svg:rect")
+                                                .attr("x", (d3.event.pageX - 80))
+                                                .attr("y", (d3.event.pageY - 60))
+                                                .attr("width", 200)
+                                                .attr("height", 110)
+                                                .style("fill", "white");
                         })
                                 
                         .on("mouseout", function(d) {
@@ -211,6 +219,10 @@
                             tooltip.transition()
                                     .duration(500)
                                     .style("opacity", 0);
+                            background.transition()
+                                    .duration(500)
+                                    .style("opacity", 0)
+                                    .remove();
                         });
                 
             }
