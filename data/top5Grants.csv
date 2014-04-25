@@ -1,0 +1,6 @@
+instname,state,control,tuition,revenue,fed_grant_avg_amount,state_grant_avg_amount,inst_grant_avg,loan_avg_amount,tuition02_tf,tuition03_tf,totaldegrees,total_enrollment
+Franklin W. Olin College of Engineering,Massachusetts,2,12123690,34416660,6071,1500,36925,4188,36400,36400,84,339
+Amherst College,Massachusetts,2,65990848,304984044,5554,2183,35993,5459,38250,38250,428,1744
+Washington and Lee University,Virginia,2,81658000,212169000,8743,2759,35895,4251,37990,37990,566,2153
+Cooper Union for the Advancement of Science and Art,New York,2,36172236,59605363,2858,2074,35039,3294,35000,35000,220,995
+Harvard University,Massachusetts,2,883013000,5348051000,5332,2738,34621,4448,33696,33696,7058,27651
