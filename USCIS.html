@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'/>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta name="description" content="Datavisualizationproject : cs490/cs690"/>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>USCIS Main Page</title>
+    
+    <style>
+            body {
+                font: 12px sans-serif;
+            }
+
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: #000;
+                shape-rendering: crispEdges;
+            }
+
+            .dot {
+                stroke: #000;
+            }
+
+            .tooltip {
+                position: absolute;
+                width: 200px;
+                height: 28px;
+                pointer-events: none;
+            }
+                
+            body {
+                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                position: relative;
+            }
+            path.slice{
+                stroke-width:2px;
+            }
+            polyline{
+                opacity: .3;
+                stroke: black;
+                stroke-width: 2px;
+                fill: none;
+            } 
+            svg text.percent{
+                fill:white;
+                text-anchor:middle;
+                font-size:12px;
+            }
+            
+            .states {
+                fill: #A4A4A4;
+                stroke: #1C1C1C;
+                stroke-width: 0.75px;
+            }
+
+            path:hover {
+                fill: tan;
+            }
+            #legend {
+    padding: 1.5em 0 0 1.5em;
+}
+
+li.key {
+    border-top-width: 15px;
+    border-top-style: solid;
+    font-size: .75em;
+    width: 10%;
+    padding-left: 0;
+    padding-right: 0;
+}
+    </style>
+        
+        <style type="text/css">
+            table, th, td {
+                border: 0px;
+            }
+        </style>
+        
+        
+        
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div id="header_wrap" class="outer">
+    <header class="inner">
+        <a id="forkme_banner" href="https://github.com/azepeda2/DataVisualizationProject">View on GitHub</a>
+
+        <h1 id="project_title">United States College Information System</h1>
+
+
+        <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/azepeda2/DataVisualizationProject/zipball/master">Download
+                this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/azepeda2/DataVisualizationProject/tarball/master">Download
+                this project as a tar.gz file</a>
+        </section>
+    </header>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main_content_wrap" class="outer">
+        <script src="javascripts/d3.min.js"></script>
+        <script src="javascripts/piechart.js"></script>
+        <script src="javascripts/map.js"></script>
+        <script src="javascripts/scatterplot.js"></script>
+        <script src="http://d3js.org/topojson.v1.min.js"></script>
+
+        
+        <form name ="viscchoice">
+            <label><input id="vischoice" type="radio" name="dataset" value="scatterplot" checked onclick="switchSVG('scatterplot')"> Scatterplot</label>
+            <label><input id="vischoice" type="radio" name="dataset" value="piechart" onclick="switchSVG('piechart')"> Pie Chart</label>
+            <label><input id="vischoice" type="radio" name="dataset" value="map" onclick="switchSVG('map')"> Map</label>
+        </form>
+        <hr/>
+            
+        
+        <table>
+            <tr>
+                <td id="svgbox" style="height:400px; width:1200px; overflow:auto;"></td>
+                <td valign="top">
+                    <table valign="top">
+                        <tr>
+                            <td>
+                                <form name="schoolSearch">
+                                    <input list="suggest" input id="schoolsearchbox" type="text" name="name" onKeyPress="EnterTo()"/>
+                                    <input type="button" name="button" value="search" onclick="addSchool()"/>
+                                    <input type="button" name="button" value="clear" onclick="clearList()"/>
+                                    <datalist id="suggest">
+                                        <option value="Franklin W. Olin College of Engineering">
+                                        <option value="Amherst College">
+                                        <option value="Washington and Lee University">
+                                        <option value="Cooper Union for the Advancement of Science and Art">
+                                        <option value="Harvard University">
+                                        <option value="Yale University">
+                                        <option value="Columbia University in the City of New York">
+                                        <option value="Vanderbilt University">
+                                        <option value="Williams College">
+                                        <option value="Dartmouth College">
+                                        <option value="Duke University">
+                                        <option value="Princeton University">
+                                        <option value="University of Richmond">
+                                        <option value="Vassar College">
+                                        <option value="Massachusetts Institute of Technology">
+                                        <option value="Colgate University">
+                                        <option value="Bates College">
+                                        <option value="Trinity College">
+                                        <option value="Wellesley College">
+                                        <option value="Haverford College">
+                                        <option value="Stanford University">
+                                        <option value="Pomona College">
+                                        <option value="Swarthmore College">
+                                        <option value="Colby College">
+                                        <option value="Bryn Mawr College">
+                                        <option value="Middlebury College">
+                                        <option value="University of Pennsylvania">
+                                        <option value="St John's College">
+                                        <option value="Reed College">
+                                        <option value="Hamilton College">
+                                        <option value="Wesleyan University">
+                                        <option value="Cornell University">
+                                        <option value="Claremont McKenna College">
+                                        <option value="California Institute of Technology">
+                                        <option value="Smith College">
+                                        <option value="Brown University">
+                                        <option value="Lafayette College">
+                                        <option value="University of Chicago">
+                                        <option value="Sarah Lawrence College">
+                                        <option value="Vanguard University of Southern California">
+                                        <option value="Bowdoin College">
+                                        <option value="Scripps College">
+                                        <option value="Connecticut College">
+                                        <option value="Bard College">
+                                        <option value="University of the Ozarks">
+                                        <option value="Mount Holyoke College">
+                                        <option value="Boston College">
+                                        <option value="Barnard College">
+                                        <option value="College of the Atlantic">
+                                        <option value="Pepperdine University">
+                                        <option value="Skidmore College">
+                                        <option value="University of Notre Dame">
+                                        <option value="St John's College">
+                                        <option value="Georgetown University">
+                                        <option value="Johns Hopkins University">
+                                        <option value="George Washington University">
+                                        <option value="Dickinson College">
+                                        <option value="Davidson College">
+                                        <option value="Union College">
+                                        <option value="Rice University">
+                                        <option value="College of the Holy Cross">
+                                        <option value="Pitzer College">
+                                        <option value="Macalester College">
+                                        <option value="Bennington College">
+                                        <option value="Tulane University of Louisiana">
+                                        <option value="Tufts University">
+                                        <option value="Emory University">
+                                        <option value="Colorado College">
+                                        <option value="Brandeis University">
+                                        <option value="Manhattanville College">
+                                        <option value="Grinnell College">
+                                        <option value="Lehigh University">
+                                        <option value="Bucknell University">
+                                        <option value="Kenyon College">
+                                        <option value="Babson College">
+                                        <option value="Wake Forest University">
+                                        <option value="Northwestern University">
+                                        <option value="Carleton College">
+                                        <option value="Franklin and Marshall College">
+                                        <option value="Hampshire College">
+                                        <option value="Washington University in St Louis">
+                                        <option value="St Lawrence University">
+                                        <option value="Fairfield University">
+                                        <option value="Boston University">
+                                        <option value="Rollins College">
+                                        <option value="Syracuse University">
+                                        <option value="Case Western Reserve University">
+                                        <option value="Earlham College">
+                                        <option value="University of Miami">
+                                        <option value="Principia College">
+                                        <option value="University of Southern California">
+                                        <option value="Berea College">
+                                        <option value="Bard College at Simon's Rock">
+                                        <option value="Cleveland Institute of Music">
+                                        <option value="University of San Francisco">
+                                        <option value="Furman University">
+                                        <option value="Gettysburg College">
+                                        <option value="Harvey Mudd College">
+                                        <option value="Sewanee-The University of the South">
+                                        <option value="Stevens Institute of Technology">
+                                    </datalist>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td id="schoolList"></td>
+                        </tr>
+                            
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <script>
+            createScatterPlot();
+            var schoolList = new Array();
+            var vis = 'scatterplot';
+            
+            function switchSVG(choice)
+            {
+                if(choice === 'scatterplot')
+                {
+                    deleteSVG();
+                    createScatterPlot();
+                }
+                else if(choice === 'piechart')
+                {
+                    deleteSVG();
+                    setUpData("data/top5Grants.csv");
+                }
+                else if(choice === 'map')
+                {
+                    deleteSVG();
+                    setMap(0, '');
+                }
+                           
+                vis = choice;
+
+            };
+
+            function deleteSVG()
+            {
+                d3.select("#topsvg").remove();
+                d3.select("#tooltip").remove();
+                d3.select("#form").remove();
+            };
+            
+            function EnterTo() {
+                console.log(event.keyCode);
+                if (event.keyCode == 13) {
+                    addSchool();
+                }
+            }
+            
+            function addSchool()
+            {
+                var school = schoolSearch.name.value;
+                var inList = 0;
+                var found = 0;
+
+                d3.csv("data/top100Grants.csv", function (error, dataset) {
+                    var hasSchool = 0;
+                    schoolList.forEach(function(d){
+                        if (school == d) {
+                            inList = 1;
+                            return;
+                        }
+                    })
+                    if (inList == 0) {
+                        dataset.forEach(function (d) {
+                            if (school == d.instname) {
+                                schoolList.push(school);
+                                found = 1;
+                                if(vis === 'piechart')
+                                {
+                                    deleteSVG();
+                                    createPie("data/top100Grants.csv");
+                                }
+                            }
+                        });
+                    }
+                    else{
+                        alert(school + " is already selected");
+                        return;
+                    }
+
+                    if (found == 1) {
+                        var text = "";
+                        for (var i = 0; i < schoolList.length; i++) {
+                            text = text + schoolList[i] + "<br>";
+                        }
+                        document.getElementById("schoolList").innerHTML = text;
+                        found = 0;
+                    }
+                    else {
+                        alert("Cannot find this School");
+                        found = 0;
+                    }
+                });
+            }
+            
+            function clearList()
+            {
+                schoolList = [];
+                document.getElementById("schoolList").innerHTML = "";
+
+                if(vis === 'piechart')
+                {
+                    deleteSVG();
+                    setUpData("data/top5Grants.csv");
+                }
+            }
+            
+        </script>
+
+</div>
+
+<!-- FOOTER  -->
+<div id="footer_wrap" class="outer">
+    <footer class="inner">
+        <p class="copyright">USCIS maintained by <a href="https://github.com/azepeda2">azepeda2</a>
+        </p>
+
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+    </footer>
+</div>
+
+
+</body>
+</html>

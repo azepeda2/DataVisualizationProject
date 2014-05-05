@@ -1,37 +1,232 @@
-
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <title>
-            Top 100 Universities Based on Grants
+            Map Prototype
         </title>
-    <style>
-        
-        .states {
-            fill: #A4A4A4;
-            stroke: #1C1C1C;
-            stroke-width: 0.75px;
-        }
-    
-    path:hover {
-        fill: tan;
-    }
-    
- 
+        <style>
+            
+            .states {
+                fill: #A4A4A4;
+                stroke: #1C1C1C;
+                stroke-width: 0.75px;
+            }
 
-    </style>
-    <body>
-    
-    <form>
-        <label><input type="radio" name="dataset" value="revenue" onclick="setMap(0);" checked> Revenue</label>
-        <label><input type="radio" name="dataset" value="tuition" onclick="setMap(1);"> Tuition</label>
-        <label><input type="radio" name="dataset" value="inst_grant_avg" onclick="setMap(2);"> Average University Grants</label>
-    </form>
-    
+            path:hover {
+                fill: tan;
+            }
+        
+        
+        
+        </style>
+    <body>    
     <script src="../javascripts/d3.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <script src="../javascripts/map.js"></script>
+    <table>
+            <tr>
+                <td id="svgbox" style="height:400px; width:1000px; overflow:auto;"></td>
+            </tr>
+    </table>
+    <script>
+        var width = 1200,
+    height = 500;
+
+var dataset;
+var map;
+var stateTotal;
+var format = d3.format('$,');
+var color = d3.scale.quantize()
+        .domain([0, 0.04, 0.8, 1.2, 1.6])
+        .range(["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"]);
+
+setMap(0);
+
+function setMap(choice){
     
+    
+    d3.csv("../data/map.csv", function(error, data) {
+        data.forEach(function(d){
+            d.tuition = +d.tuition;
+            d.revenue = +d.revenue;
+            d.inst_grant_avg = +d.inst_grant_avg;
+        });
+        if(choice == 0){
+            var total = d3.mean(data, function(d) { return d.revenue; });
+        } else if(choice == 1){
+            var total = d3.mean(data, function(d) { return d.tuition; });
+        } else {
+            var total = d3.mean(data, function(d) { return d.inst_grant_avg; });
+        }
+        
+        d3.json("../json/us.json", function(error, us) {
+            
+            d3.select("#svgbox").append("form")
+                    .html('<form>' +
+                    '<label><input type="radio" name="dataset" value="revenue" onclick="changeMap(0);" checked> Revenue</label>' +
+                    '<label><input type="radio" name="dataset" value="tuition" onclick="changeMap(1);"> Tuition</label>' +
+                    '<label><input type="radio" name="dataset" value="inst_grant_avg" onclick="changeMap(2);"> Average University Grants</label>' +
+                    '</form>')
+                    .attr("id", "form");
+            
+            map = d3.select("#svgbox").append("svg")
+                    .attr("id", "topsvg")
+                    .attr("width",width)
+                    .attr("height",height);
+            
+            var projection = d3.geo.albersUsa()
+                    .scale(1000)
+                    .translate([width / 2, height / 2]);
+            
+            var path = d3.geo.path()
+                    .projection(projection);
+            stateTotal = new Array();
+            
+            map.selectAll(".states")
+                    .data(topojson.feature(us, us.objects.subunit).features)
+                    .enter().append("path")
+                    .attr("class", "states")
+                    .attr("id", function(d){
+                        return d.properties.name;})
+                    .attr("d", path)
+                    .style("fill", function(d) {
+                        
+                var count = 0;
+                data.forEach(function(e){
+                    
+                    if(d.properties.name == e.state) {
+                        if(choice == 0){
+                            if(typeof stateTotal[d.properties.name] != "undefined")
+                                stateTotal[e.state] = stateTotal[e.state] + e.revenue;
+                            else
+                                stateTotal[e.state] =  e.revenue;
+                            
+                        }else if(choice == 1){
+                            if(typeof stateTotal[d.properties.name] != "undefined")
+                                stateTotal[e.state] = stateTotal[e.state] + e.tuition;
+                            else
+                                stateTotal[e.state] =  e.tuition;
+                        } else {
+                            if(typeof stateTotal[d.properties.name] != "undefined")
+                                stateTotal[e.state] = stateTotal[e.state] + e.inst_grant_avg;
+                            else
+                                stateTotal[e.state] =  e.inst_grant_avg;
+                        }
+                        count++;
+                    }
+                    
+                })
+                
+                if(typeof stateTotal[d.properties.name] === "undefined") {
+                    return color(0);
+                    
+                } else {                    
+                    var ratio = (stateTotal[d.properties.name]/count)/total;
+                    return color(ratio);
+                }
+                
+            })
+            .on("mouseover", function(d) {
+                        hoverOnState(d);
+            })
+            .on("mouseout", function(d) {
+                        hoverOutState();
+            });
+            var legend = d3.select('#svgbox')
+                    .append('ul')
+                    .attr('class', 'list-inline');
+            
+            var keys = legend.selectAll('li.key')
+                    .data(color.range());
+            var r = ["very low", "low", "medium", "high", "very high"];
+            var i = 0;
+            keys.enter().append('li')
+                    .attr('class', 'key')
+                    .style('border-top-color', String)
+                    .text(function(d) {
+                        return (r[i++]);
+            });
+            
+        });
+        dataset = data;
+        
+    });
+}
+
+function changeMap(choice) {
+    if(choice == 0){
+        var total = d3.mean(dataset, function(d) { return d.revenue; });
+    } else if(choice == 1){
+        var total = d3.mean(dataset, function(d) { return d.tuition; });
+    } else {
+        var total = d3.mean(dataset, function(d) { return d.inst_grant_avg; });
+    }
+    stateTotal = new Array();
+    
+    map.selectAll(".states")
+            .style("fill", function(d) {
+                
+                var count = 0;
+                dataset.forEach(function(e){
+
+                    if(d.properties.name == e.state) {
+
+                        if(choice == 0){
+                            if(typeof stateTotal[d.properties.name] != "undefined")
+                                stateTotal[e.state] = stateTotal[e.state] + e.revenue;
+                            else
+                                stateTotal[e.state] =  e.revenue;
+
+                        }else if(choice == 1){
+                            if(typeof stateTotal[d.properties.name] != "undefined")
+                                stateTotal[e.state] = stateTotal[e.state] + e.tuition;
+                            else
+                                stateTotal[e.state] =  e.tuition;
+                        } else {
+                            if(typeof stateTotal[d.properties.name] != "undefined")
+                                stateTotal[e.state] = stateTotal[e.state] + e.inst_grant_avg;
+                            else
+                                stateTotal[e.state] =  e.inst_grant_avg;
+                        }
+                        count++;
+                    }
+
+                })
+
+                if(typeof stateTotal[d.properties.name] === "undefined") {
+                    return color(0);
+
+                } else {
+                    var ratio = (stateTotal[d.properties.name]/count)/total;
+                    return color(ratio);
+                }
+
+            })
+    .on("mouseover", function(d) {
+        hoverOnState(d);
+    })
+    .on("mouseout", function(d) {
+        hoverOutState();
+    });
+    
+}
+
+function hoverOnState(handle){
+    var text = format(stateTotal[handle.properties.name]);
+    
+    var labelText = "<h1><i>" + handle.properties.name + "</i><p> State Total: " + text + "</p></h1>";
+    
+    var infolabel = d3.select("#svgbox")
+            .append("div")
+            .attr("id", "tooltip")
+            .html(labelText); 
+}
+
+function hoverOutState(){
+    d3.select("#tooltip").remove(); //remove info label
+}
+
+    </script>
     </body>
 </html>

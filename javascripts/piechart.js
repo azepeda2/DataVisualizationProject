@@ -1,3 +1,148 @@
+
+var colors=[
+	{color:"#DF0101"},
+	{color:"#F0E400"},
+	{color:"#848484"},
+	{color:"#01DF01"},
+	{color:"#2E9AFE"},
+        {color:"#8904B1"},
+        {color:"#01DFD7"},
+        {color:"#190707"}
+];
+
+var svg;
+
+var dataset = {};
+
+function changeData(value){
+        var choice;
+        if(value == 0) {
+            choice = "revenue";
+        }
+        else if(value == 1) {
+            choice = "tuition02_tf"
+        }
+        else if(value == 2) {
+            choice = "inst_grant_avg"
+        }
+        else if(value == 3) {
+            choice = "fed_grant_avg_amount";
+        }
+        else if(value == 4) {
+            choice = "state_grant_avg_amount";
+        }
+        else {
+            choice = "loan_avg_amount";
+        }
+	PieChart.transition("pieChart", dataset, choice, 130, 100, 30, 0.3);
+}
+
+function setUpData(datafile){
+    d3.select("#svgbox")
+                .append("form")
+                .html('<form>' +
+                            '<label><input type="radio" name="dataset" value="revenue" onclick="changeData(0);"> Revenue</label>' +
+                            '<label><input type="radio" name="dataset" value="tuition02_tf" onclick="changeData(1);"> Tuition</label>' +
+                            '<label><input type="radio" name="dataset" value="inst_grant_avg" onclick="changeData(2);" checked> Average University Grants</label>' +
+                            '<label><input type="radio" name="dataset" value="fed_grant_avg_amount" onclick="changeData(3);"> Average Federal Grants</label>' +
+                            '<label><input type="radio" name="dataset" value="state_grant_avg_amount" onclick="changeData(4);"> Average State Grants</label>' +
+                            '<label><input type="radio" name="dataset" value="loan_avg_amount" onclick="changeData(5);"> Average Loan Amount</label>' +
+                        '</form>')
+                .attr('id', 'form');
+    
+    svg = d3.select("#svgbox").append("svg")
+            .attr("id", "topsvg")
+            .append("svg")
+            .attr("width",700)
+            .attr("height",300);
+
+    svg.append("g").attr("id","pieChart");
+
+    
+    d3.csv(datafile, function(error, data) {
+        var i = 0;
+        data.map(function(d) {
+            d.tuition02_tf = +d.tuition02_tf;
+            d.revenue = +d.revenue;
+            d.control = +d.control;
+            d.total_enrollment = +d.total_enrollment;
+            d.fed_grant_avg_amount = +d.fed_grant_avg_amount;
+            d.state_grant_avg_amount = +d.state_grant_avg_amount;
+            d.loan_avg_amount = +d.loan_avg_amount;
+            d.inst_grant_avg = +d.inst_grant_avg;
+            d.color = colors[i].color;
+            d.label = colors[i].label;
+            i++;
+        });
+        dataset = data;
+        PieChart.draw("pieChart", dataset, 'inst_grant_avg', 150, 150, 130, 100, 30, 0.3);
+    });
+    
+}
+
+function createPie(datafile){
+    dataset = new Array();
+    
+    if(schoolList.length > 8)
+    {
+        console.log(schoolList.shift());
+        
+    }
+    
+    d3.select("#svgbox")
+                .append("form")
+                .html('<form>' +
+                            '<label><input type="radio" name="dataset" value="revenue" onclick="changeData(0);"> Revenue</label>' +
+                            '<label><input type="radio" name="dataset" value="tuition02_tf" onclick="changeData(1);"> Tuition</label>' +
+                            '<label><input type="radio" name="dataset" value="inst_grant_avg" onclick="changeData(2);" checked> Average University Grants</label>' +
+                            '<label><input type="radio" name="dataset" value="fed_grant_avg_amount" onclick="changeData(3);"> Average Federal Grants</label>' +
+                            '<label><input type="radio" name="dataset" value="state_grant_avg_amount" onclick="changeData(4);"> Average State Grants</label>' +
+                            '<label><input type="radio" name="dataset" value="loan_avg_amount" onclick="changeData(5);"> Average Loan Amount</label>' +
+                        '</form>')
+                .attr('id', 'form');
+    
+    svg = d3.select("#svgbox").append("svg")
+            .attr("id", "topsvg")
+            .append("svg")
+            .attr("width",700)
+            .attr("height",300);
+
+    svg.append("g").attr("id","pieChart");
+
+
+    var i = 0;
+    d3.csv(datafile, function(error, data) {
+        schoolList.forEach(function(s){
+        
+            data.forEach(function(d){
+
+                if(d.instname == s){
+                    console.log(d.instname);
+                    dataset.push({instname: d.instname,
+                        tuition02_tf: +d.tuition02_tf,
+                        revenue: +d.revenue,
+                        control: +d.control,
+                        total_enrollment: +d.total_enrollment,
+                        fed_grant_avg_amount: +d.fed_grant_avg_amount,
+                        state_grant_avg_amount: +d.state_grant_avg_amount,
+                        loan_avg_amount: +d.loan_avg_amount,
+                        inst_grant_avg: +d.inst_grant_avg,
+                        color: colors[i].color,
+                        label: colors[i].label
+                    });
+                    i++;
+                }
+
+            })
+        
+        
+        });
+        
+        PieChart.draw("pieChart", dataset, 'inst_grant_avg', 150, 150, 130, 100, 30, 0.3);
+    });
+    
+}
+
 !function(){
 	var PieChart={};
         var format = d3.format('$,');
@@ -133,10 +278,9 @@
 			.attr("d",function(d){ return pieInner(d, rx+0.5,ry+0.5, h, ir);})
 			.each(function(d){this._current=d;});
 		
-                var tooltip = d3.select("body").append("div")
-                    .attr("class", "tooltip")
-                    .style("opacity", 0)
-                    .style("background-color", "white");
+                tooltip = d3.select("#svgbox").append("tooltip")
+                    .attr("id", "tooltip")
+                    .style("opacity", 0);
 
 		slices.selectAll(".topSlice")
                         .data(_data)
@@ -158,10 +302,11 @@
                                     .duration(200)
                                     .style("opacity", 2)
                                     .style("color", "black");
-                            tooltip.html(d.data.instname + "<br/> Tuition: " + format(d.data.tuition02_tf)
+                            tooltip.html("<br/>" +d.data.instname + "<br/> Tuition: " + format(d.data.tuition02_tf)
                                     + "<br/> Revenue: " + format(d.data.revenue)
                                     + "<br/> Type: " + control
                                     + "<br/> Total Enrollment: " + comma(d.data.total_enrollment)
+                                    + "<br/> Avergage University Grants: " + format(d.data.inst_grant_avg)
                                     + "<br/> Avergage Federal Grants: " + format(d.data.fed_grant_avg_amount)
                                     + "<br/> Avergage State Grants: " + format(d.data.state_grant_avg_amount)
                                     + "<br/> Average Loan Amount: " + format(d.data.loan_avg_amount));
