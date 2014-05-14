@@ -14,10 +14,6 @@ var color = d3.scale.quantize()
 
 function setMap(choice){
     
-    schoolinfo = d3.select("#main_content_wrap.outer")
-            .append("div")
-            .attr("id", "schoolinfo");
-    
     d3.csv("data/map.csv", function(error, data) {
         data.forEach(function(d){
             d.tuition02_tf = +d.tuition02_tf;
@@ -156,6 +152,9 @@ function setMap(choice){
                             return "translate(" + projection([d.LONGITUD,d.LATITUDE]) + ")"}
                     })
                     .on("mouseover", function(d) {
+                        schoolinfo = d3.select("#main_content_wrap.outer")
+                                        .append("div")
+                                        .attr("id", "schoolinfo");
                         hoverOutState();
                         var control;
                         if(d["control"] == 2)
@@ -182,6 +181,7 @@ function setMap(choice){
                         d3.select(this).style("fill", "black");
                         schoolinfo.transition()
                                 .style("opacity", 0);
+                        d3.select("#schoolinfo").remove();
                     });
             
             var legend = d3.select('#svgbox')
