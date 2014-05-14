@@ -10,8 +10,8 @@ var margin = {top: 20, right: 20, bottom: 30, left: 40},
     width = 1000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var xvar = "tuition03_tf",
-    yvar = "tot_rev_w_auxother_sum",
+var xvar = "tuition02_tf",
+    yvar = "revenue",
     xname = "Tuition",
     yname = "Total Revenue";
 
@@ -34,18 +34,28 @@ function createScatterPlot() {
                 .html('<form>' +
                 'Select value for x-axis:' +
                 '<select id="xList" onchange="chooseCategory()">' +
-                    '<option value="tuition03_tf">Tuition</option>' +
-                    '<option value="tot_rev_w_auxother_sum">Total Revenue</option>' +  
+                    '<option value="tuition02_tf">Tuition</option>' +
+                    '<option value="revenue">Total Revenue</option>' +
                     '<option value="total_enrollment">Total Enrollment</option>' +
-                    '<option value="all_employees">Employees</option>' +
+                    '<option value="fed_grant_avg_amount">Average Federal Grants</option>' +
+                    '<option value="state_grant_avg_amount">Average State Grants</option>' +
+                    '<option value="inst_grant_avg">Average University Grants</option>' +
+                    '<option value="loan_avg_amount">Average Loans Taken</option>' +
+                    '<option value="totaldegrees">Total Degrees Awarded</option>' +
+                    '<option value="all_employees">Total Employees</option>' +
                 '</select>' +
 
                 'Select value for y-axis:' +
                 '<select id="yList" onchange="chooseCategory()">' +
-                    '<option value="tuition03_tf">Tuition</option>' +
-                    '<option value="tot_rev_w_auxother_sum">Total Revenue</option>' +
+                    '<option value="tuition02_tf">Tuition</option>' +
+                    '<option value="revenue">Total Revenue</option>' +
                     '<option value="total_enrollment">Total Enrollment</option>' +
-                    '<option value="all_employees">Employees</option>' +
+                    '<option value="fed_grant_avg_amount">Average Federal Grants</option>' +
+                    '<option value="state_grant_avg_amount">Average State Grants</option>' +
+                    '<option value="inst_grant_avg">Average University Grants</option>' +
+                    '<option value="loan_avg_amount">Average Loans Taken</option>' +
+                    '<option value="totaldegrees">Total Degrees Awarded</option>' +
+                    '<option value="all_employees">Total Employees</option>' +
                 '</select>' +
 
             '</form>' +
@@ -72,14 +82,19 @@ function createScatterPlot() {
             .style("opacity", 0);
 
     // load data from file
-    d3.csv("data/top50with5categories.csv", function(error, dataset) {
+    d3.csv("data/top100Tuition.csv", function(error, dataset) {
 
         // ensures data from csv is interpreted as int
         dataset.forEach(function(d) {
-            d.tuition03_tf = +d.tuition03_tf;
-            d.tot_rev_w_auxother_sum = +d.tot_rev_w_auxother_sum;
+            d.tuition02_tf = +d.tuition02_tf;
+            d.revenue = +d.revenue;
             d.control = +d.control;
             d.total_enrollment = +d.total_enrollment;
+            d.fed_grant_avg_amount = +d.fed_grant_avg_amount;
+            d.state_grant_avg_amount = +d.state_grant_avg_amount;
+            d.inst_grant_avg = +d.inst_grant_avg;
+            d.loan_avg_amount = +d.loan_avg_amount;
+            d.totaldegrees = +d.totaldegrees;
             d.all_employees = +d.all_employees;
         });
 
@@ -100,11 +115,11 @@ function updateChart(data)
     xScale.domain([0, d3.max(data, xValue) + 1]);
     yScale.domain([0, d3.max(data, yValue) + 1]);
     
-    if(xvar == "total_enrollment" || xvar == "all_employees")
+    if(xvar == "total_enrollment" || xvar == "totaldegrees")
         xAxis.tickFormat(d3.format(".3s"));
     else
         xAxis.tickFormat(d3.format("$.3s"));
-    if(yvar == "total_enrollment" || yvar == "all_employees")
+    if(yvar == "total_enrollment" || yvar == "totaldegrees")
         yAxis.tickFormat(d3.format(".3s"));
     else
         yAxis.tickFormat(d3.format("$.3s"));
@@ -190,33 +205,53 @@ function plotPoints(data)
             })
             .on("mouseover", function(d) {
                 var control;
-        if(d["control"] == 1)
-            control = "public";
-        else
-            control = "private";
-        d3.select(this).style("fill", "tan");
-        tooltip.transition()
-                .duration(200)
-                .style("opacity", 2)
-                .style("color", "black");
-        tooltip.html(d["instname"] + "<br/> Tuition: " + format(d["tuition03_tf"])
-                + "<br/> Revenue: " + format(d["tot_rev_w_auxother_sum"])
-                + "<br/> Type: " + control
-                + "<br/> Total Enrollment: " + comma(d["total_enrollment"])
-                + "<br/> Total Employees: " + comma(d["all_employees"]))
-                .style("left", (d3.event.pageX + 15) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-        
-        background = svg.append("rect")
-                .attr("x", (d3.event.pageX - 50))
-                .attr("y", (d3.event.pageY - 410))
-                .attr("width", 220)
-                .attr("height", 120)
-                .style("fill", "#f2f2f2");
-    })
+                if(d["control"] == 1)
+                    control = "public";
+                else
+                    control = "private";
+                d3.select(this).style("fill", "tan");
+                tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 2)
+                        .style("color", "black");
+                tooltip.html(d["instname"] + "<br/> Tuition: " + format(d["tuition02_tf"])
+                        + "<br/> Revenue: " + format(d["revenue"])
+                        + "<br/> Type: " + control
+                        + "<br/> Total Enrollment: " + comma(d["total_enrollment"])
+                        + "<br/> Total Employees: " + comma(d["all_employees"])
+                        + "<br/> Average Federal Grants: " + format(d["fed_grant_avg_amount"])
+                        + "<br/> Average State Grants: " + format(d["state_grant_avg_amount"])
+                        + "<br/> Average University Grants: " + format(d["inst_grant_avg"])
+                        + "<br/> Average Loans Taken: " + format(d["loan_avg_amount"])
+                        + "<br/> Total Degrees Awarded: " + comma(d["totaldegrees"]))
+                        .style("left", (d3.event.pageX + 15) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+
+                background = svg.append("rect")
+                        .attr("x", (d3.event.pageX - 50))
+                        .attr("y", (d3.event.pageY - 410))
+                        .attr("width", 220)
+                        .attr("height", 160)
+                        .style("fill", "#f2f2f2");
+            })
     
             .on("mouseout", function(d) {
-                d3.select(this).style("fill", "black");
+                d3.select(this).style("fill", function(d) {
+                    if(choice == 1)
+                    {
+                        if(d["control"] == 1)
+                            return "#D4D4D4";
+                        else
+                            return "black";
+                    }
+                    else if(choice == 2)
+                    {
+                        if(d["control"] == 2)
+                            return "#D4D4D4";
+                        else
+                            return "black";
+                    }
+                });
         tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
